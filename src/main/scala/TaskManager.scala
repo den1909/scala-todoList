@@ -1,18 +1,16 @@
-import scala.collection.mutable.ListBuffer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.util.{Try, Success, Failure}
 import scala.annotation.tailrec
 
 object TaskManager {
-  private val tasks = ListBuffer[Task]()
+  private var tasks = List[Task]()
   private var nextId = 1
 
   // Initialize by loading saved tasks
   def initialize(): Unit = {
     val savedTasks = DataPersistence.loadTasks()
-    tasks.clear()
-    tasks ++= savedTasks
+    tasks = savedTasks
     nextId = if (savedTasks.nonEmpty) savedTasks.map(_.id).max + 1 else 1
 
     // Load and apply saved theme
@@ -55,11 +53,11 @@ object TaskManager {
       description = description.filter(_.trim.nonEmpty),
       createdAt = LocalDate.now()
     )
-    tasks += task
+    tasks = tasks :+ task
     nextId += 1
 
     // Auto-save if enabled
-    DataPersistence.autoSave(tasks.toList)
+    DataPersistence.autoSave(tasks)
 
     println(UIComponents.drawNotification(s"Task created successfully! ID: ${task.id}", "success"))
     println()
@@ -134,14 +132,13 @@ object TaskManager {
       return
     }
 
-    findTaskById(tasks.toList, id) match {
+    findTaskById(tasks, id) match {
       case Some(task) =>
-        val index = tasks.indexOf(task)
         val updatedTask = task.copy(status = newStatus.toLowerCase)
-        tasks(index) = updatedTask
+        tasks = tasks.map(t => if (t.id == id) updatedTask else t)
 
         // Auto-save if enabled
-        DataPersistence.autoSave(tasks.toList)
+        DataPersistence.autoSave(tasks)
 
         println(UIComponents.drawNotification(s"Status updated to ${UIComponents.drawStatusBadge(newStatus)}!", "success"))
         println()
@@ -153,26 +150,26 @@ object TaskManager {
   }
 
   def getTaskById(id: Int): Option[Task] = {
-    findTaskById(tasks.toList, id)
+    findTaskById(tasks, id)
   }
 
-  def getAllTasks: List[Task] = tasks.toList
+  def getAllTasks: List[Task] = tasks
 
   def saveTasks(): Boolean = {
-    DataPersistence.saveTasks(tasks.toList)
+    DataPersistence.saveTasks(tasks)
   }
 
   def exportTasks(format: String): Boolean = {
-    DataPersistence.exportTasks(tasks.toList, format)
+    DataPersistence.exportTasks(tasks, format)
   }
 
   def deleteTask(id: Int): Unit = {
-    findTaskById(tasks.toList, id) match {
+    findTaskById(tasks, id) match {
       case Some(task) =>
-        tasks -= task
+        tasks = tasks.filterNot(_.id == id)
 
         // Auto-save if enabled
-        DataPersistence.autoSave(tasks.toList)
+        DataPersistence.autoSave(tasks)
 
         println(UIComponents.drawNotification(s"Task #$id deleted successfully!", "success"))
       case None =>
@@ -182,7 +179,7 @@ object TaskManager {
 
   def searchTasks(query: String): List[Task] = {
     val lowerQuery = query.toLowerCase
-    val searchResults = searchWithRelevanceScore(tasks.toList, lowerQuery)
+    val searchResults = searchWithRelevanceScore(tasks, lowerQuery)
     searchResults.sortBy(-_._2).map(_._1)  // Sort by relevance score descending
   }
 
@@ -263,14 +260,13 @@ object TaskManager {
 
     parsedDeadline match {
       case Success(date) =>
-        findTaskById(tasks.toList, id) match {
+        findTaskById(tasks, id) match {
           case Some(task) =>
-            val index = tasks.indexOf(task)
             val updatedTask = task.copy(deadline = Some(date))
-            tasks(index) = updatedTask
+            tasks = tasks.map(t => if (t.id == id) updatedTask else t)
 
             // Auto-save if enabled
-            DataPersistence.autoSave(tasks.toList)
+            DataPersistence.autoSave(tasks)
 
             println(UIComponents.drawNotification(s"Deadline updated to ${date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))}!", "success"))
           case None =>
@@ -288,14 +284,13 @@ object TaskManager {
       return
     }
 
-    findTaskById(tasks.toList, id) match {
+    findTaskById(tasks, id) match {
       case Some(task) =>
-        val index = tasks.indexOf(task)
         val updatedTask = task.copy(priority = newPriority.toLowerCase)
-        tasks(index) = updatedTask
+        tasks = tasks.map(t => if (t.id == id) updatedTask else t)
 
         // Auto-save if enabled
-        DataPersistence.autoSave(tasks.toList)
+        DataPersistence.autoSave(tasks)
 
         println(UIComponents.drawNotification(s"Priority updated to ${UIComponents.drawPriorityBadge(newPriority)}!", "success"))
       case None =>
@@ -304,15 +299,14 @@ object TaskManager {
   }
 
   def updateTaskDescription(id: Int, newDescription: String): Unit = {
-    findTaskById(tasks.toList, id) match {
+    findTaskById(tasks, id) match {
       case Some(task) =>
-        val index = tasks.indexOf(task)
         val desc = if (newDescription.trim.isEmpty) None else Some(newDescription.trim)
         val updatedTask = task.copy(description = desc)
-        tasks(index) = updatedTask
+        tasks = tasks.map(t => if (t.id == id) updatedTask else t)
 
         // Auto-save if enabled
-        DataPersistence.autoSave(tasks.toList)
+        DataPersistence.autoSave(tasks)
 
         val message = if (desc.isDefined) "Description updated successfully!" else "Description removed successfully!"
         println(UIComponents.drawNotification(message, "success"))
@@ -322,7 +316,7 @@ object TaskManager {
   }
 
   def showTaskDetails(id: Int): Unit = {
-    findTaskById(tasks.toList, id) match {
+    findTaskById(tasks, id) match {
       case Some(task) =>
         println(UITheme.border("╔" + "═" * 68 + "╗"))
         println(UITheme.border("║") + UIComponents.drawTitle(s"🔍 TASK #${task.id} DETAILS", 66) + UITheme.border("║"))

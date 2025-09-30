@@ -27,9 +27,6 @@ object UIComponents {
   def showCursor(): Unit = print("\u001b[?25h")
 
   def drawBox(width: Int, height: Int, title: String = ""): List[String] = {
-    val theme = UITheme.getCurrentTheme
-    val lines = scala.collection.mutable.ListBuffer[String]()
-
     // Top border
     val topBorder = if (title.nonEmpty) {
       val titlePadding = (width - title.length - 4) / 2
@@ -39,18 +36,16 @@ object UIComponents {
     } else {
       s"${boxChars("topLeft")}${"═" * (width - 2)}${boxChars("topRight")}"
     }
-    lines += UITheme.border(topBorder)
 
     // Middle lines
-    for (_ <- 1 until height - 1) {
-      lines += UITheme.border(s"${boxChars("vertical")}${" " * (width - 2)}${boxChars("vertical")}")
-    }
+    val middleLines = (1 until height - 1).map(_ =>
+      UITheme.border(s"${boxChars("vertical")}${" " * (width - 2)}${boxChars("vertical")}")
+    ).toList
 
     // Bottom border
     val bottomBorder = s"${boxChars("bottomLeft")}${"═" * (width - 2)}${boxChars("bottomRight")}"
-    lines += UITheme.border(bottomBorder)
 
-    lines.toList
+    UITheme.border(topBorder) :: middleLines ::: List(UITheme.border(bottomBorder))
   }
 
   def drawTitle(text: String, width: Int = 70): String = {

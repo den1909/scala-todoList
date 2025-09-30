@@ -182,20 +182,41 @@ object TaskManager {
 
   def searchTasks(query: String): List[Task] = {
     val lowerQuery = query.toLowerCase
-    filterTasksRecursive(tasks.toList, lowerQuery)
+    val searchResults = searchWithRelevanceScore(tasks.toList, lowerQuery)
+    searchResults.sortBy(-_._2).map(_._1)  // Sort by relevance score descending
   }
 
-  @tailrec
-  private def filterTasksRecursive(tasks: List[Task], query: String, accumulator: List[Task] = List()): List[Task] = tasks match {
-    case Nil => accumulator.reverse
+  private def searchWithRelevanceScore(tasks: List[Task], query: String): List[(Task, Int)] = tasks match {
+    case Nil => List.empty
     case task :: tail =>
-      val matches = task.title.toLowerCase.contains(query) ||
-                   task.description.exists(_.toLowerCase.contains(query)) ||
-                   task.category.toLowerCase.contains(query) ||
-                   task.status.toLowerCase.contains(query) ||
-                   task.priority.toLowerCase.contains(query)
-      if (matches) filterTasksRecursive(tail, query, task :: accumulator)
-      else filterTasksRecursive(tail, query, accumulator)
+      val score = calculateRelevanceScore(task, query, 0)
+      val restResults = searchWithRelevanceScore(tail, query)
+      if (score > 0) (task, score) :: restResults
+      else restResults
+  }
+
+  private def calculateRelevanceScore(task: Task, query: String, baseScore: Int): Int = {
+    val titleScore = if (task.title.toLowerCase.contains(query)) 10 else 0
+    val exactTitleScore = if (task.title.toLowerCase == query) 20 else 0
+    val descScore = task.description.map(desc =>
+      if (desc.toLowerCase.contains(query)) 5 else 0
+    ).getOrElse(0)
+    val categoryScore = if (task.category.toLowerCase.contains(query)) 3 else 0
+    val statusScore = if (task.status.toLowerCase.contains(query)) 2 else 0
+    val priorityScore = if (task.priority.toLowerCase.contains(query)) 2 else 0
+
+    // Recursive bonus calculation based on query word count
+    val wordBonus = calculateWordMatchBonus(query.split("\\s+").toList, task)
+
+    baseScore + titleScore + exactTitleScore + descScore + categoryScore + statusScore + priorityScore + wordBonus
+  }
+
+  private def calculateWordMatchBonus(words: List[String], task: Task): Int = words match {
+    case Nil => 0
+    case word :: tail =>
+      val wordScore = if (task.title.toLowerCase.contains(word) ||
+                         task.description.exists(_.toLowerCase.contains(word))) 1 else 0
+      wordScore + calculateWordMatchBonus(tail, task)
   }
 
   def showTasksByPriority(priority: String): Unit = {

@@ -1,0 +1,7 @@
+.*
+project
+target
+!.gitignore
+!.gitattributes
+!.gitmodules
+!.github/

@@ -2,6 +2,8 @@
 
 Eine interaktive Kommandozeilen-Todo-Anwendung geschrieben in Scala 3.
 
+Dennis Bacher & Dion Thaqi
+
 ## Features
 
 - 📋 Task-Management mit Kategorien (work, school, private)
@@ -19,6 +21,7 @@ Das Projekt demonstriert verschiedene rekursive Implementierungen:
 ### Tail-rekursive Funktionen (`@tailrec`)
 
 **1. Task-Anzeige** (TaskManager.scala:90-99)
+
 ```scala
 @tailrec
 private def displayTasks(tasks: List[Task]): Unit = tasks match {
@@ -33,6 +36,7 @@ private def displayTasks(tasks: List[Task]): Unit = tasks match {
 ```
 
 **2. Task-Suche nach ID** (TaskManager.scala:101-107)
+
 ```scala
 @tailrec
 private def findTaskById(tasks: List[Task], targetId: Int): Option[Task] = tasks match {
@@ -44,6 +48,7 @@ private def findTaskById(tasks: List[Task], targetId: Int): Option[Task] = tasks
 ```
 
 **3. Hauptmenü-Schleife** (SimpleInteractiveMenu.scala:12-84)
+
 ```scala
 @tailrec
 private def menuLoop(items: List[MenuItem]): Unit = {
@@ -63,6 +68,7 @@ private def menuLoop(items: List[MenuItem]): Unit = {
 ### Echte rekursive Funktionen
 
 **4. Intelligente Suche mit Relevanz-Scoring** (TaskManager.scala:186-193)
+
 ```scala
 private def searchWithRelevanceScore(tasks: List[Task], query: String): List[(Task, Int)] = tasks match {
   case Nil => List.empty
@@ -75,6 +81,7 @@ private def searchWithRelevanceScore(tasks: List[Task], query: String): List[(Ta
 ```
 
 **5. Multi-Word-Suche mit Bonus-Punkten** (TaskManager.scala:211-217)
+
 ```scala
 private def calculateWordMatchBonus(words: List[String], task: Task): Int = words match {
   case Nil => 0
@@ -90,11 +97,13 @@ private def calculateWordMatchBonus(words: List[String], task: Task): Int = word
 ### Core-Komponenten
 
 - **Main.scala** - Einstiegspunkt der Applikation
+
   - Initialisiert TaskManager und UI
   - Lädt gespeicherte Tasks und Konfiguration
   - Registriert Shutdown-Hook für Auto-Save
 
 - **TaskManager.scala** - Zentrale Task-Verwaltung
+
   - CRUD-Operationen für Tasks
   - Rekursive Such- und Filter-Funktionen
   - Intelligente Suche mit Relevanz-Scoring
@@ -107,17 +116,20 @@ private def calculateWordMatchBonus(words: List[String], task: Task): Int = word
 ### UI-Komponenten
 
 - **Menu.scala** - Menü-Handler
+
   - Handler-Funktionen für alle Menüoptionen
   - User-Input-Validierung
   - Interaktive Dialoge für Task-Operationen
 
 - **SimpleInteractiveMenu.scala** - Interaktives Menüsystem
+
   - Tail-rekursive Menü-Schleife
   - Keyboard-Shortcuts (t, s, a, q, h)
   - Quick-Access-Funktionen für häufige Operationen
   - Analytics-Dashboard
 
 - **UIComponents.scala** - UI-Rendering
+
   - Task-Karten mit Farb-Coding
   - Badges für Status, Priorität, Kategorie
   - Fortschrittsbalken und Notifications

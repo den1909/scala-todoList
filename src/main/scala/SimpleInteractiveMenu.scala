@@ -113,7 +113,7 @@ object SimpleInteractiveMenu {
     displayThemes(themes, 0)
 
     println()
-    print(UITheme.accent("🎨 Choose theme (1-4) or Enter to cancel: "))
+    print(UITheme.accent("🎨 Choose theme 1-4 or Enter to cancel: "))
 
     val choiceRaw = StdIn.readLine()
     if (choiceRaw == null) return

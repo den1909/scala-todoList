@@ -44,6 +44,7 @@ Das Projekt demonstriert **5 rekursive Funktionen**:
 ## Code-Highlight: Intelligente Suche
 
 **Suche mit Relevanz-Scoring** (TaskManager.scala:186-193)
+Die Funktion geht durch alle Tasks, berechnet für jeden eine Punktzahl zum Suchbegriff, und gibt nur die Tasks mit Punktzahl grösser als 0 zurück.
 
 ```scala
 private def searchWithRelevanceScore(tasks: List[Task], query: String):

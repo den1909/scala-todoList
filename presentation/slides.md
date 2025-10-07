@@ -15,7 +15,7 @@ backgroundColor: #fff
 
 ---
 
-## 📌 Projekt-Übersicht
+## Projekt-Übersicht
 
 Eine interaktive **Kommandozeilen-Todo-Anwendung** in Scala 3
 
@@ -29,7 +29,7 @@ Eine interaktive **Kommandozeilen-Todo-Anwendung** in Scala 3
 
 ---
 
-## 🎯 Hauptziel: Rekursive Programmierung
+## Hauptziel: Rekursive Programmierung
 
 Das Projekt demonstriert **5 rekursive Funktionen**:
 
@@ -41,7 +41,7 @@ Das Projekt demonstriert **5 rekursive Funktionen**:
 
 ---
 
-## 💡 Code-Highlight: Intelligente Suche
+## Code-Highlight: Intelligente Suche
 
 **Suche mit Relevanz-Scoring** (TaskManager.scala:186-193)
 
@@ -72,7 +72,7 @@ sbt run
 
 <!-- _class: lead -->
 
-# 🙏 Vielen Dank!
+# Vielen Dank!
 
 ## Fragen?
 
